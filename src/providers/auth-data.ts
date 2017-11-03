@@ -30,9 +30,18 @@ export class AuthData {
           //    firstName: "anonymous",
            //   id:newUser.uid,
          // });
-        firebase.database().ref('/userProfile').child(newUser.uid).set({
+        firebase.database().ref('plantInfo/1').set({
+             name: "Giro Desenvolvimento",
+             email: email, 
+             type: 1,
+             plantCode: 1
+        });         
+
+        firebase.database().ref('plantInfo/1/userProfile').child(newUser.uid).set({
             firstName: "anonymous",
-             email: email
+             email: email, 
+             type: 1,
+             plantCode: 1
       });
     });
   }
