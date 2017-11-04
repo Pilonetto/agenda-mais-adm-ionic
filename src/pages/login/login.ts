@@ -1,76 +1,90 @@
+
 import { Component } from '@angular/core';
-import {  NavController, NavParams, LoadingController,
-    AlertController } from 'ionic-angular';
-import { FormBuilder, Validators } from '@angular/forms';
+import { IonicPage, NavController, NavParams,ToastController } from 'ionic-angular';
+import {User} from '../../models/user';
+import {AuthProvider} from "../../providers/auth/auth";
+import { RecSenhaPage } from './../rec-senha/rec-senha';
 
-import { EmailValidator } from '../../validators/email';
-import { AuthData } from '../../providers/auth-data';
-import {HomePage}from'../home/home';
 
-import { ResetPassword } from '../reset-password/reset-password';
-import { Signup } from '../signup/signup';
 /**
- * Generated class for the Login page.
+ * Generated class for the LoginPage page.
  *
- * See http://ionicframework.com/docs/components/#navigation for more info
- * on Ionic pages and navigation.
+ * See https://ionicframework.com/docs/components/#navigation for more info on
+ * Ionic pages and navigation.
  */
 
+@IonicPage()
 @Component({
-    selector: 'page-login',
-    templateUrl: 'login.html',
+  selector: 'page-login',
+  templateUrl: 'login.html',
 })
-export class Login {
-    public loginForm;
-    loading: any;
+export class LoginPage {
+    
 
-    constructor(public navCtrl: NavController, public navParams: NavParams
-        , public formBuilder: FormBuilder,
-        public alertCtrl: AlertController, public loadingCtrl: LoadingController,
-        public authData: AuthData, public nav: NavController) {
+    user = { } as User;
 
-        this.loginForm = formBuilder.group({
-            email: ['', Validators.compose([Validators.required, EmailValidator.isValid])],
-            password: ['', Validators.compose([Validators.minLength(6), Validators.required])]
-        });
+    error;
+
+    constructor(public navCtrl: NavController, public navParams: NavParams, private authProvider: AuthProvider,
+        private toastCtrl: ToastController) {
+
+       
 
     }
 
-    loginUser(): void {
-        if (!this.loginForm.valid) {
-            console.log(this.loginForm.value);
-        } else {
-            this.authData.loginUser(this.loginForm.value.email, this.loginForm.value.password).then(authData => {
-                this.loading.dismiss().then(() => {
-                    this.nav.setRoot(HomePage);
-                });
-            }, error => {
-                var msg = 'Senha inválida!'
-                this.loading.dismiss().then(() => {
-                    //if (error.code
-                    let alert = this.alertCtrl.create({
-                        message: msg,
-                        buttons: [
-                            {
-                                text: "Ok",
-                                role: 'cancel'
-                            }
-                        ]
-                    });
-                    alert.present();
-                });
-            });
+    ionViewDidLoad(){
+        console.log("Ion View Did Load");
+    }
 
-            this.loading = this.loadingCtrl.create();
-            this.loading.present();
+    async login(user: User) {
+      console.log("Login:", user);
+        try {
+            const result = await this.authProvider.login(user);
+            if (result) {
+                this.navCtrl.setRoot('ItemsListPage');
+            }
         }
+        catch (e) {
+           console.error(e);
+          //  this.error = e;
+            
+                let toast = this.toastCtrl.create({
+                  message: 'Usuário Inválido ou inexistente',
+                  duration: 3000,
+                  position: 'top',
+                  cssClass:'cor'
+                });
+              
+                toast.onDidDismiss(() => {
+                  console.log('Dismissed toast');
+                });
+              
+                toast.present();
+              }
+
+
+           
+        
     }
 
-    goToSignup(): void {
-        this.nav.push(Signup);
-    }
+          recSenha(){
 
-    goToResetPassword(): void {
-        this.nav.push(ResetPassword);
-    }
+            this.navCtrl.push(RecSenhaPage);
+        }
+
+ // async register(user: User) {
+   //     console.log("Register:", user);
+     //   try {
+       //     const result = await this.authProvider.register(user);
+      //      if (result) {
+       //         this.navCtrl.setRoot('ItemsListPage');
+      //      }
+      //  } catch (e) {
+            // console.error(e);
+      //      this.error = e;
+       // }
+  //  } --> 
+
+
+
 }
